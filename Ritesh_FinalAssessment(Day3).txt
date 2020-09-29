@@ -1,0 +1,137 @@
+Challenge 1:
+ Hilltop Animal Hospital maintains invoicing data in a computer system. Below is the invoice format.  As analyst examine the given invoice and design a database schema with required tables.  Note : All the tables should be in 3rd NORMAL FORM. 
+   INVOICE 
+HILLTOP ANIMAL HOSPITAL   DATE: JAN 13/2002 INVOICE # 987 
+MR. RICHARD COOK     123 THIS STREET MY CITY, ONTARIO    Z5Z 6G6     
+PET  PROCEDURE   AMOUNT  
+ROVER   RABIES VACCINATION  30.00 MORRIS  RABIES VACCINATION  24.00 
+  TOTAL    54.00       TAX (8%)     4.32 
+  AMOUNT OWING   58.32 
+
+Solution:
+
+1NF 
+
+Invoice no     Hospital name     Date            CustomerName           Address               City     State        Pincode      Total   Tax  Amount Owing
+----------     -------------    ------------     ------------           --------             -------  ---------   ----------     -----   ---- -------------
+987            Hilltop Animal   '2002-01-13'     Mr.Richard Cook        123 This Street      My City  Ontario       Z5Z6G6       54.00    4.32  58.32
+                hospital       
+
+Invoice no     PetId            PetName           Procedure            Amount      CustomerName
+----------     -------------    ------------     -------------------- --------     --------------- 
+987            ROV               Rover           Rabies vaccination   30.00         Mr.Richard Cook     
+----------    --------------    -----------      -------------------- ---------    ----------------
+
+987            MOR              Morris          Rabies vaccination     24.00         Mr.Richard Cook        
+
+
+
+2NF
+
+CustNo       CustomerName      Address            City     State     Pincode  
+------      -------------     ---------           -----    -------    ---------
+C1          Mr.Richard Cook   123 This Street     My City   Ontario    Z5Z6G6
+
+
+
+Invoice no    Hospital name     Date           CustNo      Total      Tax    Amount Owing
+----------   --------------    ------          --------    -------    -----   -------------
+987          Hilltop Animal    '2002-01-13'    C1          54.00      4.32    58.32
+               hospital                      
+
+
+
+Invoice no     PetId            PetName           Procedure            Amount      CustNo
+----------     -------------    ------------     -------------------- --------     --------------- 
+987            ROV               Rover           Rabies vaccination   30.00         C1     
+----------    --------------    -----------      -------------------- ---------    ----------------
+
+987            MOR              Morris          Rabies vaccination     24.00         C1
+
+
+
+3NF
+
+Customer Table     
+
+CustNo       CustomerName      Address            City     State     Pincode  
+------      -------------     ---------           -----    -------    ---------
+C1          Mr.Richard Cook   123 This Street     My City   Ontario    Z5Z6G6
+
+
+Invoice Table
+Invoice no    Hospital name     Date           CustNo      Total      Tax    Amount Owing
+----------   --------------    ------          --------    -------    -----   -------------
+987          Hilltop Animal    '2002-01-13'    C1          54.00      4.32    58.32
+               hospital                      
+
+
+
+Pet Treatment
+Invoice no     PetId                      Procedure            Amount      CustNo
+----------     -------------         -------------------- --------     --------------- 
+987            ROV                      Rabies vaccination   30.00         C1     
+----------    --------------          -------------------- ---------    ----------------
+
+987            MOR                      Rabies vaccination     24.00        C1
+
+Pet Details
+PetId         Petname   CustNo
+--------    ---------   -------
+ROV         ROVER         C1
+-------    ----------  --------
+MOR         MORRIS       C1
+
+
+Challenge 2: 
+ABC inc maintains critical customer information in a table called  "customer_details"  and the application has provision to remove customer details form the table once customer service request is fullfilled.   However,  to serve the customer in a better way for future requests ABC Inc want to retain deleted customer data in a separate table.    How we can achieve it at database server level with out modifying application code.   
+customer_details table structure:
+ cust_name varchar(35) email varchar(50) phone char(10) Address1 Varchar(20) Address2 Varchar(20) City Varchar(20) Pincode int cust_request text reported_date date
+
+Write required mariadb  code.
+
+Solution :
+1.Creating customer_details table
+create table customer_details(cust_name varchar(35),email varchar(50),phone char(10),Address1 varchar(20),Address2 varchar(20),City varchar(20),Pincode int , cust_request text , reported_date date);
+2.Inserting Values into tables
+insert into customer_details values('Ritesh','ritesyadav654@gmail.com','9999966666','M.G Road','Nallagutta','Secunderabad','500003','Check acct balance','2020-09-23');
+insert into customer_details values('Chakra','chakrapani2561@gmail.com','99799688666','JNTU','DMART','KPHB','500036','Disable credit services','2020-09-23');
+
+MariaDB [emp_dept]> SELECT * FROM customer_details\G
+*************************** 1. row ***************************
+    cust_name: Ritesh
+        email: ritesyadav654@gmail.com
+        phone: 9999966666
+     Address1: M.G Road
+     Address2: Nallagutta
+         City: Secunderabad
+      Pincode: 500003
+ cust_request: Check acct balance
+reported_date: 2020-09-23
+*************************** 2. row ***************************
+    cust_name: Chakra
+        email: chakrapani2561@gmail.com
+        phone: 9979968866
+     Address1: JNTU
+     Address2: DMART
+         City: KPHB
+      Pincode: 500036
+ cust_request: Disable credit services
+reported_date: 2020-09-23
+2 rows in set (0.00 sec)
+
+3.Creating customer_delete_details table to store the deleted records.
+MariaDB [emp_dept]> create table cust_delete_details(cust_name varchar(35),email varchar(50),phone char(10),Address1 varchar(20),Address2 varchar(20),City varchar(20),Pincode int , cust_request text , reported_date date);
+Query OK, 0 rows affected (0.04 sec)
+
+4. Create delete trigger inorder to store the deleted records without modifying the application code.
+
+Delimiter //
+create trigger del before delete on customer_details for each row
+begin
+    insert into cust_delete_details (cust_name ,email,phone,Address1,Address2,City,Pincode, cust_request , reported_date) values(old.cust_name ,old.email,old.phone,old.Address1,old.Address2,old.City,old.Pincode,old.cust_request ,old.reported_date);
+end;
+//
+Whenever a row from the customer_details table is deleted, the deleted row is added to the cust_delete_details table.
+
+
