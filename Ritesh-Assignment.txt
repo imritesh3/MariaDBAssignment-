@@ -1,0 +1,6 @@
+Observations for task 9 
+
+1.Rollback and Commit operations work for InnoDB since it is a transactional storage engine.
+2.Rollback and Commit doesn't work for MyISAM and Memory since they are non transactional storage engines.
+3.Rollback and Commit operations worked for emp table since it is a tranasactional InnoDB storage engine.
+4.Rollback opeartion didn't work for dept table since it a non transactional MyISAM storage engine.
